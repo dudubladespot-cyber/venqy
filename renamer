@@ -23,6 +23,18 @@ local function ApplyStroke(obj)
     stroke.Parent = obj
 end
 
+-- Função para proteger a GUI
+local function ProtectGui(gui)
+    if syn and syn.protect_gui then
+        syn.protect_gui(gui)
+        gui.Parent = CoreGui
+    elseif gethui then
+        gui.Parent = gethui()
+    else
+        gui.Parent = CoreGui
+    end
+end
+
 -- ==========================================
 -- LÓGICA DO ITEM RENAMER
 -- ==========================================
@@ -48,15 +60,7 @@ local function OpenItemRenamer()
     ScreenGui.Name = "ItemRenamerGUI"
     _G.RenamerUI_Instance = ScreenGui 
 
-    -- Proteção contra detecção (se disponível)
-    if syn and syn.protect_gui then
-        syn.protect_gui(ScreenGui)
-        ScreenGui.Parent = CoreGui
-    elseif gethui then
-        ScreenGui.Parent = gethui()
-    else
-        ScreenGui.Parent = CoreGui
-    end
+    ProtectGui(ScreenGui)
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
