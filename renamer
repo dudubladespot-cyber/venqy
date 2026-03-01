@@ -1,0 +1,240 @@
+-- [[ SERVIÇOS ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+
+-- [[ CONFIGURAÇÕES ]] --
+local RENAMER_BG_ID = "rbxassetid://97722128714338" 
+
+-- [[ FUNÇÕES AUXILIARES ]] --
+local function ApplyCorner(obj, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 6)
+    corner.Parent = obj
+end
+
+local function ApplyStroke(obj)
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 1.8
+    stroke.Color = Color3.fromRGB(0, 0, 0)
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Parent = obj
+end
+
+-- ==========================================
+-- LÓGICA DO ITEM RENAMER
+-- ==========================================
+local function OpenItemRenamer()
+    -- Fecha se já estiver aberto
+    if _G.RenamerUI_Instance and _G.RenamerUI_Instance.Parent then
+        _G.RenamerUI_Instance:Destroy()
+        _G.RenamerUI_Instance = nil
+        return 
+    end
+
+    local ITEMS_FOLDER = ReplicatedStorage:WaitForChild("Items", 5)
+    local CATEGORIES = {
+        Emotes = ITEMS_FOLDER and ITEMS_FOLDER:FindFirstChild("Emotes"),
+        Cosmetics = ITEMS_FOLDER and ITEMS_FOLDER:FindFirstChild("Cosmetics")
+    }
+
+    local currentCategory = "Emotes"
+    local targetItem = nil
+    local sourceName = nil
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "ItemRenamerGUI"
+    _G.RenamerUI_Instance = ScreenGui 
+
+    -- Proteção contra detecção (se disponível)
+    if syn and syn.protect_gui then
+        syn.protect_gui(ScreenGui)
+        ScreenGui.Parent = CoreGui
+    elseif gethui then
+        ScreenGui.Parent = gethui()
+    else
+        ScreenGui.Parent = CoreGui
+    end
+
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 450, 0, 380) 
+    MainFrame.Position = UDim2.new(0.5, -225, 0.5, -190)
+    MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    MainFrame.BackgroundTransparency = 1 
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+    MainFrame.Parent = ScreenGui
+    ApplyCorner(MainFrame, 10)
+
+    local BgImage = Instance.new("ImageLabel")
+    BgImage.Name = "BackgroundImage"
+    BgImage.Size = UDim2.new(1, 0, 1, 0)
+    BgImage.Image = RENAMER_BG_ID
+    BgImage.ScaleType = Enum.ScaleType.Stretch 
+    BgImage.BackgroundTransparency = 0 
+    BgImage.ZIndex = 0 
+    BgImage.Parent = MainFrame
+    ApplyCorner(BgImage, 10)
+
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, -40, 0, 40)
+    Title.Position = UDim2.new(0, 15, 0, 0)
+    Title.BackgroundTransparency = 1
+    Title.Text = "Item Renamer"
+    Title.TextColor3 = Color3.new(1, 1, 1)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 24
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.ZIndex = 2
+    Title.Parent = MainFrame
+
+    local CloseBtn = Instance.new("TextButton")
+    CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+    CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+    CloseBtn.BackgroundTransparency = 1 
+    CloseBtn.Text = "X"
+    CloseBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+    CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.ZIndex = 2
+    CloseBtn.Parent = MainFrame
+    ApplyCorner(CloseBtn, 6)
+    ApplyStroke(CloseBtn)
+
+    CloseBtn.MouseButton1Click:Connect(function()
+        _G.RenamerUI_Instance = nil
+        ScreenGui:Destroy()
+    end)
+
+    local function ApplyStyle(btn)
+        btn.BackgroundTransparency = 1 
+        btn.TextColor3 = Color3.new(1, 1, 1)
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 18
+        btn.ZIndex = 2
+        ApplyCorner(btn, 6)
+        ApplyStroke(btn)
+    end
+
+    local TabContainer = Instance.new("Frame")
+    TabContainer.Size = UDim2.new(0.92, 0, 0, 45)
+    TabContainer.Position = UDim2.new(0.04, 0, 0.12, 0)
+    TabContainer.BackgroundTransparency = 1
+    TabContainer.ZIndex = 2
+    TabContainer.Parent = MainFrame
+
+    local EmoteTab = Instance.new("TextButton")
+    EmoteTab.Size = UDim2.new(0.48, 0, 1, 0)
+    EmoteTab.Text = "Emotes"; EmoteTab.Parent = TabContainer; ApplyStyle(EmoteTab)
+
+    local CosmeticTab = Instance.new("TextButton")
+    CosmeticTab.Size = UDim2.new(0.48, 0, 1, 0)
+    CosmeticTab.Position = UDim2.new(0.52, 0, 0, 0)
+    CosmeticTab.Text = "Cosmetics"; CosmeticTab.Parent = TabContainer; ApplyStyle(CosmeticTab)
+
+    local LeftDropBtn = Instance.new("TextButton")
+    LeftDropBtn.Size = UDim2.new(0.44, 0, 0, 45)
+    LeftDropBtn.Position = UDim2.new(0.04, 0, 0.28, 0)
+    LeftDropBtn.Text = "Select Target"; LeftDropBtn.Parent = MainFrame; ApplyStyle(LeftDropBtn)
+
+    local RightDropBtn = Instance.new("TextButton")
+    RightDropBtn.Size = UDim2.new(0.44, 0, 0, 45)
+    RightDropBtn.Position = UDim2.new(0.52, 0, 0.28, 0)
+    RightDropBtn.Text = "Select Name"; RightDropBtn.Parent = MainFrame; ApplyStyle(RightDropBtn)
+
+    local PreviewBox = Instance.new("TextBox")
+    PreviewBox.Size = UDim2.new(0.92, 0, 0, 35)
+    PreviewBox.Position = UDim2.new(0.04, 0, 0.54, 0)
+    PreviewBox.BackgroundTransparency = 1 
+    PreviewBox.TextColor3 = Color3.new(0.5, 1, 1) 
+    PreviewBox.Font = Enum.Font.Code
+    PreviewBox.TextSize = 11
+    PreviewBox.ClearTextOnFocus = false
+    PreviewBox.TextEditable = false
+    PreviewBox.ZIndex = 2
+    PreviewBox.Parent = MainFrame
+    ApplyCorner(PreviewBox, 6)
+    ApplyStroke(PreviewBox)
+
+    local function CreateDropdownList(parentBtn)
+        local Scroll = Instance.new("ScrollingFrame")
+        Scroll.Size = UDim2.new(1, 0, 4.5, 0)
+        Scroll.Position = UDim2.new(0, 0, 1.1, 0)
+        Scroll.BackgroundColor3 = Color3.new(0, 0, 0)
+        Scroll.BackgroundTransparency = 0.2
+        Scroll.Visible = false
+        Scroll.ZIndex = 20
+        Scroll.Parent = parentBtn
+        ApplyCorner(Scroll, 6)
+        Instance.new("UIListLayout", Scroll).SortOrder = Enum.SortOrder.LayoutOrder
+        return Scroll
+    end
+
+    local LeftList = CreateDropdownList(LeftDropBtn)
+    local RightList = CreateDropdownList(RightDropBtn)
+
+    local ApplyBtn = Instance.new("TextButton")
+    ApplyBtn.Size = UDim2.new(0.92, 0, 0, 55)
+    ApplyBtn.Position = UDim2.new(0.04, 0, 0.72, 0)
+    ApplyBtn.Text = "RENAME ITEM"; ApplyBtn.Parent = MainFrame; ApplyStyle(ApplyBtn)
+
+    local StatusLabel = Instance.new("TextLabel")
+    StatusLabel.Size = UDim2.new(1, 0, 0, 25)
+    StatusLabel.Position = UDim2.new(0, 0, 0.90, 0)
+    StatusLabel.BackgroundTransparency = 1
+    StatusLabel.Text = "Ready"
+    StatusLabel.TextColor3 = Color3.new(0.9, 0.9, 0.9)
+    StatusLabel.ZIndex = 2
+    StatusLabel.Parent = MainFrame
+
+    local function RefreshLists()
+        for _, v in pairs(LeftList:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
+        for _, v in pairs(RightList:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
+        local folder = CATEGORIES[currentCategory]
+        if not folder then return end
+        local items = folder:GetChildren()
+        table.sort(items, function(a, b) return a.Name < b.Name end)
+        LeftList.CanvasSize = UDim2.new(0, 0, 0, #items * 35)
+        RightList.CanvasSize = UDim2.new(0, 0, 0, #items * 35)
+        for _, item in ipairs(items) do
+            local function CreateEntry(list, isTarget)
+                local btn = Instance.new("TextButton", list)
+                btn.Size = UDim2.new(1, 0, 0, 35)
+                btn.BackgroundTransparency = 1
+                btn.Text = item.Name
+                btn.TextColor3 = Color3.new(1, 1, 1)
+                btn.ZIndex = 21
+                btn.MouseButton1Click:Connect(function()
+                    if isTarget then targetItem = item; LeftDropBtn.Text = item.Name else sourceName = item.Name; RightDropBtn.Text = item.Name end
+                    list.Visible = false
+                end)
+            end
+            CreateEntry(LeftList, true); CreateEntry(RightList, false)
+        end
+    end
+
+    local function SwitchTab(cat)
+        currentCategory = cat; targetItem = nil; sourceName = nil
+        LeftDropBtn.Text = "Select " .. cat; RightDropBtn.Text = "Select Name"
+        LeftList.Visible = false; RightList.Visible = false
+        RefreshLists()
+    end
+
+    LeftDropBtn.MouseButton1Click:Connect(function() LeftList.Visible = not LeftList.Visible; RightList.Visible = false end)
+    RightDropBtn.MouseButton1Click:Connect(function() RightList.Visible = not RightList.Visible; LeftList.Visible = false end)
+    EmoteTab.MouseButton1Click:Connect(function() SwitchTab("Emotes") end)
+    CosmeticTab.MouseButton1Click:Connect(function() SwitchTab("Cosmetics") end)
+
+    ApplyBtn.MouseButton1Click:Connect(function()
+        if not targetItem or not sourceName then StatusLabel.Text = "Selection Missing!"; return end
+        local success, err = pcall(function() targetItem.Name = sourceName end)
+        if success then StatusLabel.Text = "Success!"; RefreshLists() else StatusLabel.Text = "Error!"; warn(err) end
+    end)
+
+    SwitchTab("Emotes")
+end
+
+-- Abre a interface
+OpenItemRenamer()
