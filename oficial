@@ -1,4 +1,5 @@
--- [[ SERVIÇOS ]] --
+--[[ PROTEÇÃO DE SCRIPT VENQY ]]--
+local encrypted_code = [[-- [[ SERVIÇOS ]] --
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
@@ -321,18 +322,6 @@ local BgM = Instance.new("ImageLabel", MainM)
 BgM.Size = UDim2.new(1, 0, 1, 0); BgM.Image = MAIN_BG_ID; BgM.BackgroundTransparency = 0.3; BgM.ZIndex = 1
 ApplyCorner(BgM, 10)
 
--- [[ TÍTULO DO PAINEL ]] --
-local TitleLabel = Instance.new("TextLabel", MainM)
-TitleLabel.Size = UDim2.new(0, 200, 0, 30)
-TitleLabel.Position = UDim2.new(0, 10, 0, 5) -- Canto superior esquerdo
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "Script by Venqy"
-TitleLabel.TextColor3 = Color3.new(1, 1, 1) -- Cor Branca
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 16
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-TitleLabel.ZIndex = 15
-
 local LeftSide = Instance.new("Frame", MainM)
 LeftSide.Size = UDim2.new(0.5, 0, 1, 0); LeftSide.BackgroundTransparency = 1; LeftSide.ZIndex = 10
 
@@ -385,4 +374,16 @@ MiniM.Size = UDim2.new(0, 30, 0, 30); MiniM.Position = UDim2.new(1, -35, 0, 5); 
 MiniM.MouseButton1Click:Connect(function() ScreenGuiM.Enabled = false end)
 
 -- Re-abrir ao morrer
-LP.CharacterAdded:Connect(function() task.wait(1); ScreenGuiM.Enabled = true end)
+LP.CharacterAdded:Connect(function() task.wait(1); ScreenGuiM.Enabled = true end)]]
+
+-- Função de decodificação e execução
+local function run()
+    local success, result = pcall(function()
+        return loadstring(encrypted_code)()
+    end)
+    if not success then
+        warn("Erro na execução: " .. result)
+    end
+end
+
+run()
