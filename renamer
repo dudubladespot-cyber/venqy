@@ -23,18 +23,6 @@ local function ApplyStroke(obj)
     stroke.Parent = obj
 end
 
--- Função para proteger a GUI
-local function ProtectGui(gui)
-    if syn and syn.protect_gui then
-        syn.protect_gui(gui)
-        gui.Parent = CoreGui
-    elseif gethui then
-        gui.Parent = gethui()
-    else
-        gui.Parent = CoreGui
-    end
-end
-
 -- ==========================================
 -- LÓGICA DO ITEM RENAMER
 -- ==========================================
@@ -60,7 +48,30 @@ local function OpenItemRenamer()
     ScreenGui.Name = "ItemRenamerGUI"
     _G.RenamerUI_Instance = ScreenGui 
 
-    ProtectGui(ScreenGui)
+    -- Proteção contra detecção (se disponível)
+    if syn and syn.protect_gui then
+        syn.protect_gui(ScreenGui)
+        ScreenGui.Parent = CoreGui
+    elseif gethui then
+        ScreenGui.Parent = gethui()
+    else
+        ScreenGui.Parent = CoreGui
+    end
+
+    -- [[ AVISO NO CANTO DIREITO ]] --
+    local SignatureLabel = Instance.new("TextLabel")
+    SignatureLabel.Name = "SignatureLabel"
+    SignatureLabel.Size = UDim2.new(0, 200, 0, 30)
+    SignatureLabel.Position = UDim2.new(1, -10, 1, -10)
+    SignatureLabel.AnchorPoint = Vector2.new(1, 1)
+    SignatureLabel.BackgroundTransparency = 1
+    SignatureLabel.Text = "Renamer by venqy"
+    SignatureLabel.TextColor3 = Color3.new(1, 1, 1)
+    SignatureLabel.Font = Enum.Font.GothamBold
+    SignatureLabel.TextSize = 18
+    SignatureLabel.TextXAlignment = Enum.TextXAlignment.Right
+    SignatureLabel.ZIndex = 100 -- Garante que fique por cima de tudo
+    SignatureLabel.Parent = ScreenGui
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
