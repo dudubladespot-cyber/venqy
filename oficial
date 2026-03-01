@@ -321,6 +321,18 @@ local BgM = Instance.new("ImageLabel", MainM)
 BgM.Size = UDim2.new(1, 0, 1, 0); BgM.Image = MAIN_BG_ID; BgM.BackgroundTransparency = 0.3; BgM.ZIndex = 1
 ApplyCorner(BgM, 10)
 
+-- [[ TÍTULO DO PAINEL ]] --
+local TitleLabel = Instance.new("TextLabel", MainM)
+TitleLabel.Size = UDim2.new(0, 200, 0, 30)
+TitleLabel.Position = UDim2.new(0, 10, 0, 5) -- Canto superior esquerdo
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "Script by Venqy"
+TitleLabel.TextColor3 = Color3.new(1, 1, 1) -- Cor Branca
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextSize = 16
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.ZIndex = 15
+
 local LeftSide = Instance.new("Frame", MainM)
 LeftSide.Size = UDim2.new(0.5, 0, 1, 0); LeftSide.BackgroundTransparency = 1; LeftSide.ZIndex = 10
 
