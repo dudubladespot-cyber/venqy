@@ -58,7 +58,7 @@ local function OpenItemRenamer()
         ScreenGui.Parent = CoreGui
     end
 
-    -- [[ AVISO NO CANTO DIREITO ]] --
+    -- [[ AVISO NO CANTO DIREITO (com tempo de vida) ]] --
     local SignatureLabel = Instance.new("TextLabel")
     SignatureLabel.Name = "SignatureLabel"
     SignatureLabel.Size = UDim2.new(0, 200, 0, 30)
@@ -72,6 +72,13 @@ local function OpenItemRenamer()
     SignatureLabel.TextXAlignment = Enum.TextXAlignment.Right
     SignatureLabel.ZIndex = 100 -- Garante que fique por cima de tudo
     SignatureLabel.Parent = ScreenGui
+
+    -- Faz o aviso desaparecer após 14 segundos
+    task.delay(14, function()
+        if SignatureLabel and SignatureLabel.Parent then
+            SignatureLabel:Destroy()
+        end
+    end)
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
